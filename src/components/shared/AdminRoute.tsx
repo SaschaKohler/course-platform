@@ -11,7 +11,7 @@ export function AdminRoute() {
   }
 
   // Hier Ihre Admin-Check-Logik anpassen
-  const isAdmin = profile?.email?.endsWith("@yourcompany.com");
+  const isAdmin = profile?.email?.endsWith("@sent.at");
 
   if (!user || !isAdmin) {
     return <Navigate to="/" replace />;

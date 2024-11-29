@@ -28,9 +28,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   >(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isInitialProfileFetch, setIsInitialProfileFetch] = useState(true);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+
   const fetchProfile = useCallback(
-    async (userId: string) => {
+    async (userId: string, userEmail?: string | undefined) => {
+      // Prevent multiple simultaneous profile fetches
+      if (isProfileLoading) return;
+
+      setIsProfileLoading(true);
       try {
         const { data, error } = await supabase
           .from("profiles")
@@ -40,14 +45,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
           if (error.code === "PGRST116") {
-            // Create profile if it doesn't exist
+            // Only create profile if we don't have one yet
             const { data: newProfile, error: createError } = await supabase
               .from("profiles")
               .insert([
                 {
                   id: userId,
-                  email: user?.email,
-                  full_name: user?.user_metadata?.full_name || "",
+                  email: userEmail || "",
+                  full_name: "",
                 },
               ])
               .select()
@@ -64,28 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error("Error in profile management:", error);
         setError("Failed to load user profile");
+      } finally {
+        setIsProfileLoading(false);
       }
     },
-    [user],
+    [],
   );
 
   useEffect(() => {
-    // Prüfe zuerst den localStorage
-    const storedSession = localStorage.getItem("supabase-auth");
-    if (storedSession) {
-      try {
-        const parsedSession = JSON.parse(storedSession);
-        // Wenn ein Token vorhanden ist, setze initial die Session
-        if (parsedSession?.access_token) {
-          setLoading(true);
-          console.log("Found stored session:", parsedSession);
-        }
-      } catch (error) {
-        console.error("Error parsing stored session:", error);
-      }
-    }
+    let mounted = true;
 
-    // Dann erst die Supabase Session Prüfung
     const initSession = async () => {
       try {
         const {
@@ -95,45 +88,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (sessionError) throw sessionError;
 
-        if (currentSession) {
-          console.log("Session validated with Supabase");
+        if (currentSession && mounted) {
           setSession(currentSession);
           setUser(currentSession.user);
+          await ensureProfile(currentSession.user);
 
           if (currentSession.user) {
-            await fetchProfile(currentSession.user.id);
+            await fetchProfile(
+              currentSession.user.id,
+              currentSession.user.email,
+            );
           }
         }
       } catch (error) {
         console.error("Error during session initialization:", error);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     initSession();
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log("Auth state changed:", event, newSession?.user?.id);
 
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
+      if (mounted) {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
 
-      // Handle profile on auth state change
-      if (newSession?.user) {
-        await fetchProfile(newSession.user.id);
-      } else {
-        setProfile(null);
+        if (newSession?.user) {
+          await fetchProfile(newSession.user.id, newSession.user.email);
+          await ensureProfile(newSession.user);
+        } else {
+          setProfile(null);
+        }
+
+        setLoading(false);
       }
-
-      setLoading(false);
     });
 
-    // Cleanup subscription
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [fetchProfile]);
@@ -145,6 +144,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     hasUser: !!user,
     hasProfile: !!profile,
   });
+
+  const ensureProfile = async (user: User) => {
+    try {
+      // 1. Prüfe ob Profil existiert
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from("profiles")
+        .select()
+        .eq("id", user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== "PGRST116") {
+        throw fetchError;
+      }
+
+      // 2. Wenn kein Profil existiert, erstelle eines
+      if (!existingProfile) {
+        const { data: newProfile, error: createError } = await supabase
+          .from("profiles")
+          .insert([
+            {
+              id: user.id,
+              email: user.email,
+              full_name: user.user_metadata?.full_name || null,
+              created_at: new Date().toISOString(),
+            },
+          ])
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        setProfile(newProfile);
+        return newProfile;
+      }
+
+      // 3. Wenn Profil existiert, aktualisiere es wenn nötig
+      if (
+        existingProfile.email !== user.email ||
+        existingProfile.full_name !== user.user_metadata?.full_name
+      ) {
+        const { data: updatedProfile, error: updateError } = await supabase
+          .from("profiles")
+          .update({
+            email: user.email,
+            full_name: user.user_metadata?.full_name || null,
+          })
+          .eq("id", user.id)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+        setProfile(updatedProfile);
+        return updatedProfile;
+      }
+
+      setProfile(existingProfile);
+      return existingProfile;
+    } catch (error) {
+      console.error("Error ensuring profile:", error);
+      throw error;
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     setError(null);
@@ -158,7 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
       if (authError) throw authError;
-
+      console.log(authData);
       // 2. Session und User setzen
       if (authData.session && authData.user) {
         setSession(authData.session);

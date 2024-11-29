@@ -1,10 +1,11 @@
 .
 ├── README.md
-├── create-structure.sh
+├── components.json
 ├── eslint.config.js
 ├── index.html
 ├── package-lock.json
 ├── package.json
+├── postcss.config.js
 ├── projektstruktur-.txt
 ├── projektstruktur.txt
 ├── public
@@ -22,16 +23,42 @@
 │   │   │   └── UserManager.tsx
 │   │   ├── layout
 │   │   │   ├── AdminLayout.tsx
+│   │   │   ├── MainLayout.tsx
+│   │   │   ├── Sidebar.tsx
 │   │   │   └── UserLayout.tsx
 │   │   ├── shared
+│   │   │   ├── AdminRoute.tsx
 │   │   │   ├── AuthModal.tsx
+│   │   │   ├── AuthModal_test.tsx
+│   │   │   ├── AuthTest.tsx
+│   │   │   ├── ErrorBoundary.tsx
+│   │   │   ├── ErrorBoundaryWrapper.tsx
 │   │   │   ├── LoadingSpinner.tsx
-│   │   │   └── Navigation.tsx
+│   │   │   ├── MobileNav.tsx
+│   │   │   ├── Navigation.tsx
+│   │   │   ├── ProtectedRoute.tsx
+│   │   │   └── UserMenu.tsx
+│   │   ├── ui
+│   │   │   ├── alert.tsx
+│   │   │   ├── avatar.tsx
+│   │   │   ├── button.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── dropdown-menu.tsx
+│   │   │   ├── form.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── label.tsx
+│   │   │   ├── navigation-menu.tsx
+│   │   │   ├── progress.tsx
+│   │   │   ├── separator.tsx
+│   │   │   └── sheet.tsx
 │   │   └── user
 │   │       ├── CourseCard.tsx
 │   │       ├── CourseProgress.tsx
 │   │       ├── LessonList.tsx
 │   │       └── VideoPlayer.tsx
+│   ├── config
+│   │   └── index.tsx
 │   ├── contexts
 │   │   ├── AuthContext.tsx
 │   │   └── CourseContext.tsx
@@ -42,8 +69,14 @@
 │   ├── index.css
 │   ├── lib
 │   │   ├── stripe.ts
-│   │   └── supabaseClient.ts
+│   │   ├── supabaseClient.ts
+│   │   └── utils.ts
 │   ├── main.tsx
+│   ├── pages
+│   │   ├── Dashboard.tsx
+│   │   ├── Home.tsx
+│   │   └── admin
+│   │       └── Dashboard.tsx
 │   ├── routes
 │   │   ├── admin
 │   │   │   ├── analytics
@@ -64,9 +97,10 @@
 │   │   ├── formatters.ts
 │   │   └── validators.ts
 │   └── vite-env.d.ts
+├── tailwind.config.js
 ├── tsconfig.app.json
 ├── tsconfig.json
 ├── tsconfig.node.json
 └── vite.config.ts
 
-22 directories, 47 files
+26 directories, 77 files

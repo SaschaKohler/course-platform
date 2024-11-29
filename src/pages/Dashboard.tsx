@@ -7,6 +7,7 @@ import { BookOpen, Clock, Trophy, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Database } from "@/types/supabase";
+import { supabase } from "@/lib/supabaseClient";
 
 type CourseWithProgress = Database["public"]["Tables"]["courses"]["Row"] & {
   progress: number;
