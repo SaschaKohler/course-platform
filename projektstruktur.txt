@@ -1,0 +1,72 @@
+.
+├── README.md
+├── create-structure.sh
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── projektstruktur-.txt
+├── projektstruktur.txt
+├── public
+│   └── vite.svg
+├── src
+│   ├── App.css
+│   ├── App.tsx
+│   ├── assets
+│   │   └── react.svg
+│   ├── components
+│   │   ├── admin
+│   │   │   ├── Analytics.tsx
+│   │   │   ├── CourseManager.tsx
+│   │   │   ├── LessonEditor.tsx
+│   │   │   └── UserManager.tsx
+│   │   ├── layout
+│   │   │   ├── AdminLayout.tsx
+│   │   │   └── UserLayout.tsx
+│   │   ├── shared
+│   │   │   ├── AuthModal.tsx
+│   │   │   ├── LoadingSpinner.tsx
+│   │   │   └── Navigation.tsx
+│   │   └── user
+│   │       ├── CourseCard.tsx
+│   │       ├── CourseProgress.tsx
+│   │       ├── LessonList.tsx
+│   │       └── VideoPlayer.tsx
+│   ├── contexts
+│   │   ├── AuthContext.tsx
+│   │   └── CourseContext.tsx
+│   ├── hooks
+│   │   ├── useAuth.ts
+│   │   ├── useCourse.ts
+│   │   └── useSubscription.ts
+│   ├── index.css
+│   ├── lib
+│   │   ├── stripe.ts
+│   │   └── supabaseClient.ts
+│   ├── main.tsx
+│   ├── routes
+│   │   ├── admin
+│   │   │   ├── analytics
+│   │   │   ├── courses
+│   │   │   ├── dashboard.tsx
+│   │   │   └── users
+│   │   ├── public
+│   │   │   ├── home.tsx
+│   │   │   └── pricing.tsx
+│   │   └── user
+│   │       ├── courses
+│   │       ├── dashboard.tsx
+│   │       └── profile
+│   ├── types
+│   │   ├── stripe.ts
+│   │   └── supabase.ts
+│   ├── utils
+│   │   ├── formatters.ts
+│   │   └── validators.ts
+│   └── vite-env.d.ts
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+
+22 directories, 47 files
